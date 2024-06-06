@@ -1,7 +1,7 @@
-import os
-
 import click
 import git
+
+from ..llm.clients.openai import get_llm_client
 
 from openai import OpenAI
 
@@ -62,17 +62,6 @@ def get_new_tag(
         content=content,
         model=model,
     )
-
-def get_openai_client(api_key: str | None) -> OpenAI:
-    if not api_key:
-        raise click.ClickException(
-            "OpenAI API key must be provided through " \
-            "`--api-key`, " \
-            "`OPENAI_API_KEY` or " \
-            "`OPENAI_TOKEN`."
-        )
-
-    return OpenAI(api_key=api_key)
 
 def run_bump(
     is_need_push_tags: bool,
@@ -148,11 +137,7 @@ def bump(
     model: str,
     api_key: str | None,
 ) -> None:
-    api_key = api_key \
-        or os.getenv("OPENAI_API_KEY") \
-        or os.getenv("OPENAI_TOKEN")
-
-    openai_client = get_openai_client(api_key)
+    openai_client = get_llm_client(api_key)
 
     run_bump(
         is_need_push_tags=tags,
