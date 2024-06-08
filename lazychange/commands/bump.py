@@ -36,8 +36,8 @@ def get_commit_message(
         raise click.ClickException("Diff is empty!")
 
     content = "Generate a brief commit message (title only)" \
-              "for the following changes, use markdown if needed " \
-              "(for names of git branches, packages, classes, functions, keywords)" \
+              "for the following changes, wrap some names in backticks if needed " \
+              "(mentions of git branches, packages, classes, functions, keywords)" \
               f":\n```diff\n{diff}\n```"
 
     return get_simple_answer(
