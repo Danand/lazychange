@@ -72,7 +72,9 @@ def run_bump(
 ) -> None:
     repo = git.Repo(repo_path)
 
-    diff = repo.git.diff()
+    repo.git.add(A=True)
+
+    diff = repo.git.diff("HEAD")
 
     message = get_commit_message(
         diff=diff,
