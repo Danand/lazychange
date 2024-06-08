@@ -1,31 +1,9 @@
 import click
 import git
 
-from ..llm.clients.openai import get_llm_client
+from ..llm.clients.openai import get_llm_client, get_simple_answer
 
 from openai import OpenAI
-
-from typing import cast
-
-def get_simple_answer(
-    openai_client: OpenAI,
-    content: str,
-    model: str,
-) -> str:
-    response = openai_client.chat.completions.create(
-        model=model,
-        temperature=0,
-        messages=[
-            {
-                "role": "user",
-                "content": content,
-            },
-        ],
-    )
-
-    answer = cast(str, response.choices[0].message.content)
-
-    return answer.strip()
 
 def get_commit_message(
     diff: str,
