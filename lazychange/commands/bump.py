@@ -1,14 +1,13 @@
 import click
 import git
 
-from ..llm.clients.openai import get_llm_client, get_simple_answer
-
-from openai import OpenAI
+from ..llm.client_factory import get_llm_client
+from ..llm.client_base import ClientBase
 
 def get_commit_message(
     diff: str,
     model: str,
-    openai_client: OpenAI,
+    llm_client: ClientBase,
 ) -> str:
     if len(diff) == 0:
         raise click.ClickException("Diff is empty!")
@@ -18,8 +17,7 @@ def get_commit_message(
               "(mentions of git branches, packages, classes, functions, keywords)" \
               f":\n```diff\n{diff}\n```"
 
-    return get_simple_answer(
-        openai_client=openai_client,
+    return llm_client.get_simple_answer(
         content=content,
         model=model,
     )
@@ -27,7 +25,7 @@ def get_commit_message(
 def get_new_tag(
     repo: git.Repo,
     model: str,
-    openai_client: OpenAI,
+    llm_client: ClientBase,
 ) -> str:
     previous_tag = repo.git.describe("--tags", "--abbrev=0")
 
@@ -35,8 +33,7 @@ def get_new_tag(
               "ready for tagging (without descriptions and explanations). " \
               f"Current version: {previous_tag}"
 
-    return get_simple_answer(
-        openai_client=openai_client,
+    return llm_client.get_simple_answer(
         content=content,
         model=model,
     )
@@ -46,7 +43,7 @@ def run_bump(
     is_dry_run: bool,
     repo_path: str,
     model: str,
-    openai_client: OpenAI,
+    llm_client: ClientBase,
 ) -> None:
     repo = git.Repo(repo_path)
 
@@ -57,7 +54,7 @@ def run_bump(
     message = get_commit_message(
         diff=diff,
         model=model,
-        openai_client=openai_client,
+        llm_client=llm_client,
     )
 
     if is_dry_run:
@@ -73,7 +70,7 @@ def run_bump(
         new_tag = get_new_tag(
             repo=repo,
             model=model,
-            openai_client=openai_client,
+            llm_client=llm_client,
         )
 
         if is_dry_run:
@@ -101,28 +98,37 @@ def run_bump(
     help="Path to the Git repository.",
 )
 @click.option(
+    "--llm",
+    default="openai",
+    help="LLM service.",
+)
+@click.option(
     "--model",
     default="gpt-4o",
-    help="OpenAI model to use for generating messages.",
+    help="LLM model to use for generating messages.",
 )
 @click.option(
     "--api-key",
     default=None,
-    help="OpenAI API key.",
+    help="LLM service API key.",
 )
 def bump(
     dry_run: bool,
     tags: bool,
     repo: str,
+    llm: str,
     model: str,
     api_key: str | None,
 ) -> None:
-    openai_client = get_llm_client(api_key)
+    llm_client = get_llm_client(
+        llm= llm,
+        api_key=api_key,
+    )
 
     run_bump(
         is_need_push_tags=tags,
         is_dry_run=dry_run,
         repo_path=repo,
         model=model,
-        openai_client=openai_client,
+        llm_client=llm_client,
     )
