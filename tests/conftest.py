@@ -21,6 +21,8 @@ def dummy_git_repo(tmpdir: LocalPath) -> Generator[LocalPath, None, None]:
     os.makedirs(repo_path)
 
     subprocess.run(["git", "init", repo_path], check=True)
+    subprocess.run(["git", "-C", repo_path, "config", "user.name", "Jane Doe"], check=True)
+    subprocess.run(["git", "-C", repo_path, "config", "user.email", "jane_doe@acme.com"], check=True)
     subprocess.run(["git", "-C", repo_path, "remote", "add", "origin", origin_path], check=True)
     subprocess.run(["git", "-C", repo_path, "commit", "--allow-empty", "-m", "Initial commit"], check=True)
     subprocess.run(["git", "-C", repo_path, "tag", "0.1.0"], check=True)
