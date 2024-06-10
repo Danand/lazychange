@@ -11,7 +11,11 @@ from ..client_base import ClientBase
 class ClientOpenAI(ClientBase):
     client: OpenAI
 
-    def initialize(self, api_key: str | None) -> None:
+    def __init__(
+        self,
+        api_key: str | None,
+        model: str,
+    ) -> None:
         api_key = api_key \
             or os.getenv("OPENAI_API_KEY") \
             or os.getenv("OPENAI_TOKEN")
@@ -25,14 +29,14 @@ class ClientOpenAI(ClientBase):
             )
 
         self.client = OpenAI(api_key=api_key)
+        self.model = model
 
     def get_simple_answer(
         self,
         content: str,
-        model: str,
     ) -> str:
         response = self.client.chat.completions.create(
-            model=model,
+            model=self.model,
             temperature=0,
             messages=[
                 {

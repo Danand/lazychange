@@ -10,13 +10,9 @@ class ClientTest(ClientBase):
     def enqueue_answer(answer: str) -> None:
         ClientTest._answer_queue.append(answer)
 
-    def initialize(self, api_key: str | None) -> None:
-        pass
-
     def get_simple_answer(
         self,
-        content: str,
-        model: str,
+        prompt: str,
     ) -> str:
         if ClientTest._answer_queue:
             return ClientTest._answer_queue.popleft()

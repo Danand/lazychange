@@ -4,15 +4,12 @@ from .clients.client_test import ClientTest
 
 def get_llm_client(
     llm: str,
+    model: str,
     api_key: str | None,
 ) -> ClientBase:
     if llm == "test":
         return ClientTest()
     elif llm == "openai":
-        client_openai = ClientOpenAI()
-
-        client_openai.initialize(api_key)
-
-        return client_openai
+        return ClientOpenAI(api_key, model)
     else:
         raise ValueError("Invalid LLM")

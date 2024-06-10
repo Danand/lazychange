@@ -6,43 +6,39 @@ from ..llm.client_base import ClientBase
 
 def get_commit_message(
     diff: str,
-    model: str,
     llm_client: ClientBase,
 ) -> str:
     if len(diff) == 0:
         raise click.ClickException("Diff is empty!")
 
-    content = "Generate a brief commit message (title only)" \
-              "for the following changes, wrap some names in backticks if needed " \
+    prompt = "Generate a brief commit message (title only)" \
+              ", send result only, no preamble words like 'sure, here it is', etc.; " \
+              "for the following changes, wrap only some names in backticks if needed " \
               "(mentions of git branches, packages, classes, functions, keywords)" \
               f":\n```diff\n{diff}\n```"
 
     return llm_client.get_simple_answer(
-        content=content,
-        model=model,
+        prompt=prompt,
     )
 
 def get_new_tag(
     repo: git.Repo,
-    model: str,
     llm_client: ClientBase,
 ) -> str:
     previous_tag = repo.git.describe("--tags", "--abbrev=0")
 
-    content = "Detect versioning style, increment version, and answer with result only, " \
-              "ready for tagging (without descriptions and explanations). " \
-              f"Current version: {previous_tag}"
+    prompt = "Detect versioning style, increment version, and answer with result only, " \
+             "ready for tagging (without descriptions and explanations). " \
+             f"Current version: {previous_tag}"
 
     return llm_client.get_simple_answer(
-        content=content,
-        model=model,
+        prompt=prompt,
     )
 
 def run_bump(
     is_need_push_tags: bool,
     is_dry_run: bool,
     repo_path: str,
-    model: str,
     llm_client: ClientBase,
 ) -> None:
     repo = git.Repo(repo_path)
@@ -53,7 +49,6 @@ def run_bump(
 
     message = get_commit_message(
         diff=diff,
-        model=model,
         llm_client=llm_client,
     )
 
@@ -69,7 +64,6 @@ def run_bump(
     if is_need_push_tags:
         new_tag = get_new_tag(
             repo=repo,
-            model=model,
             llm_client=llm_client,
         )
 
@@ -123,12 +117,12 @@ def bump(
     llm_client = get_llm_client(
         llm= llm,
         api_key=api_key,
+        model=model,
     )
 
     run_bump(
         is_need_push_tags=tags,
         is_dry_run=dry_run,
         repo_path=repo,
-        model=model,
         llm_client=llm_client,
     )
