@@ -1,5 +1,5 @@
 from .client_base import ClientBase
-from .clients.client_openai import ClientOpenAI
+from .clients.client_langchain import ClientLangchain
 from .clients.client_test import ClientTest
 
 def get_llm_client(
@@ -9,7 +9,9 @@ def get_llm_client(
 ) -> ClientBase:
     if llm == "test":
         return ClientTest()
-    elif llm == "openai":
-        return ClientOpenAI(api_key, model)
     else:
-        raise ValueError("Invalid LLM")
+        return ClientLangchain(
+            llm=llm,
+            api_key=api_key,
+            model=model,
+        )
