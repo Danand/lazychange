@@ -8,6 +8,7 @@ from pydantic.v1.types import SecretStr
 
 from langchain_core.language_models.base import BaseLanguageModel
 from langchain_openai import ChatOpenAI
+from langchain_community.llms.ollama import Ollama
 from langchain.prompts import PromptTemplate
 
 class ClientLangchain(ClientBase):
@@ -41,6 +42,10 @@ class ClientLangchain(ClientBase):
                 api_key=SecretStr(api_key),
                 model=model,
             )
+        if llm == "ollama":
+            return Ollama(
+                model=model,
+            )
         else:
             raise ValueError("Invalid LLM")
 
@@ -52,6 +57,9 @@ class ClientLangchain(ClientBase):
 
         response = llm_chain.invoke({"prompt": prompt})
 
-        answer = cast(str, response.content)
+        if isinstance(response, str):
+            answer = response
+        else:
+            answer = cast(str, response.content)
 
         return answer

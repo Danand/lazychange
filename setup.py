@@ -9,6 +9,7 @@ setup(
         "gitpython>=3.1",
         "langchain>=0.2",
         "langchain-openai>=0.1",
+        "langchain-community>=0.2",
     ],
     entry_points={
         "console_scripts": [
